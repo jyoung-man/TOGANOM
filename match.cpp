@@ -1,25 +1,33 @@
 #include <iostream>
-#include<string>
-#include<algorithm>
+#include <string>
+#include <cstdlib>
+#include <ctime>
+#include <algorithm>
 #include "premier_league.h"
 using namespace std;
 vector<homeVSaway> match::algorithm1() {
 	vector<homeVSaway> ret;
 	double ho_att, aw_dfc, aw_att, ho_dfc;
-	double p = -0.88774;//Á¤½Ä ¹öÀü¿¡¼­´Â ÀÌ º¯¼öµµ ÆÀÀÇ °ø°İ·Â ¼öºñ·ÂÀ» ÀÎÀÚ·Î ¹Ş¾Æ ÇÁ·Î±×·¥ ÀÚÃ¼¿¡¼­ ±¸ÇÒ °Í!
-	int homeCount = 0;//È¨ ÆÀÀÇ µæÁ¡(¿øÁ¤ ÆÀÀÇ ½ÇÁ¡)
-	int awayCount = 0;//¿øÁ¤ ÆÀÀÇ µæÁ¡(È¨ ÆÀÀÇ ½ÇÁ¡)
-	double Tt1, Tt2;
-	double XX1,XX2;
+	int homeCount = 0;//í™ˆ íŒ€ì˜ ë“ì (ì›ì • íŒ€ì˜ ì‹¤ì )
+	int awayCount = 0;//ì›ì • íŒ€ì˜ ë“ì (í™ˆ íŒ€ì˜ ì‹¤ì )
+	double Tt1;
+	double XX1;
 	double e = exp(1);
-	double q1, q2;
+	double q1,p1,p2;
 	for (awayCount = 0; awayCount < 4; awayCount++) {
-		for (homeCount = 0; homeCount < 4; homeCount++) { //xk : yk  -> È¨ : ¾î¿şÀÌ¿¡ ´ëÇÑ È®·ü °è»ê
-			//Àü¹İÀü °è»ê
-			ho_att = home.getStat().at(0); ho_dfc = away.getStat().at(1);
-			aw_att = away.getStat().at(4); aw_dfc = away.getStat().at(5);
-			double lamda1 = ho_att * aw_dfc;//È¨ µæÁ¡·ü * ¿øÁ¤ ½ÇÁ¡·ü. Âü°í ³í¹®¿¡¼± È¨ º¸Á¤µµ Æ÷ÇÔµÇ¾úÀ½. È¨ º¸Á¤Àº ÇÊ¿ä½Ã¿¡ Ãß°¡ ¿¹Á¤.
+		for (homeCount = 0; homeCount < 4; homeCount++) { //xk : yk  -> í™ˆ : ì–´ì›¨ì´ì— ëŒ€í•œ í™•ë¥  ê³„ì‚°
+			//ì „ë°˜ì „ ê³„ì‚°
+			ho_att = home.getStat().at(0); ho_dfc = home.getStat().at(1);
+			aw_att = away.getStat().at(2); aw_dfc = away.getStat().at(3);
+			double lamda1 = ho_att * aw_dfc;//í™ˆ ë“ì ë¥  * ì›ì • ì‹¤ì ë¥ . ì°¸ê³  ë…¼ë¬¸ì—ì„  í™ˆ ë³´ì •ë„ í¬í•¨ë˜ì—ˆìŒ. í™ˆ ë³´ì •ì€ í•„ìš”ì‹œì— ì¶”ê°€ ì˜ˆì •.
 			double mu1 = ho_dfc * aw_att;
+			double p;
+			p1 = max(-1 / lamda1, -1 / mu1);
+			p2 = min(1/(lamda1 * mu1), 1.00);
+			if (p2<1&&p2>p1)
+				p = p1;
+			else
+				p = p2;
 			if (homeCount == 0 && awayCount == 0) {
 				Tt1 = 1 - lamda1 * mu1*p;
 			}
@@ -37,32 +45,7 @@ vector<homeVSaway> match::algorithm1() {
 			}
 			XX1 = Tt1 * pow(e, lamda1)*pow(lamda1, homeCount)*exp(-mu1)*pow(mu1, awayCount);
 			q1 = pow(e, (0.0065 * 45 - 0.0065 * 90));
-			double half1 = pow(XX1, q1);
-			//ÈÄ¹İÀü °è»ê
-			ho_att = home.getStat().at(2); ho_dfc = home.getStat().at(3);
-			aw_att = away.getStat().at(6); aw_dfc = away.getStat().at(7);
-			double lamda2 = ho_att * aw_dfc;//È¨ µæÁ¡·ü * ¿øÁ¤ ½ÇÁ¡·ü. Âü°í ³í¹®¿¡¼± È¨ º¸Á¤µµ Æ÷ÇÔµÇ¾úÀ½. È¨ º¸Á¤Àº ÇÊ¿ä½Ã¿¡ Ãß°¡ ¿¹Á¤.
-			double mu2 = ho_dfc * aw_att;
-			if (homeCount == 0 && awayCount == 0) {
-				Tt2 = 1 - lamda2 * mu2*p;
-			}
-			else if (homeCount == 0 && awayCount == 1) {
-				Tt2 = (1 + lamda2 * p);
-			}
-			else if (homeCount == 1 && awayCount == 0) {
-				Tt2 = 1 + mu2 * p;
-			}
-			else if (homeCount == 1 && awayCount == 1) {
-				Tt2 = 1 - p;
-			}
-			else {
-				Tt2 = 1;
-			}
-			XX2 = Tt2 * pow(e, lamda2)*pow(lamda2, homeCount)*exp(-mu2)*pow(mu2, awayCount);
-			q2 = pow(e, (0.0065 * 90 - 0.0065 * 90));
-			double half2 = pow(XX2, q2);
-		
-			double value =half1+ half2;
+			double value  = pow(XX1, q1);
 			homeVSaway res(homeCount, awayCount, value);
 			ret.push_back(res);
 		}
@@ -70,8 +53,64 @@ vector<homeVSaway> match::algorithm1() {
 	sort(ret.begin(), ret.end());
 	return ret;
 }
+vector<homeVSaway> match::algorithm2() {
+	vector<homeVSaway> ret;
+	int pass, advantage1, advantage2, tick;	
+	pass = advantage1 = advantage2 = 0;//íŒ¨ìŠ¤ ì—°ê²° íšŸìˆ˜, ëŠ¥ë ¥ì¹˜ ë³´ì •ì„ ìœ„í•œ ë³€ìˆ˜
+	tick = 0; //ì‹œê°„ í‘œì‹œë¥¼ ìœ„í•œ ë³€ìˆ˜
+	vector <double> homeStats = home.getStat();
+	vector <double> awayStats = away.getStat();
+	homeStats.push_back(away.getStat().at(6)); //í™ˆíŒ€ ìŠ¤íƒ¯ ë²¡í„°ì— ì›ì •íŒ€ì˜ ìˆ˜ë¹„ë ¥ë„ í¬í•¨ì‹œì¼°ìŒ
+	awayStats.push_back(home.getStat().at(6)); //ì›ì •íŒ€ ìŠ¤íƒ¯ ë²¡í„°ì— í™ˆíŒ€ì˜ ìˆ˜ë¹„ë ¥ë„ í¬í•¨ì‹œì¼°ìŒ
+	homeStats.push_back(advantage1);//ë³´ì •ì¹˜
+	awayStats.push_back(advantage2);
+	teamScore hometeam = { home.getName(), 0 };
+	teamScore awayteam = { away.getName(), 0 };
+	_sleep(3000);
+	announcer(1, 0, hometeam);
+	tick = time_tick(0);
+	while (tick < 30) {//45ë¶„ - ëœë¤ ì‹œê°„ 15ë¶„
+		pass = pass_play(homeStats, pass);
+		hometeam.score = tikitaka(hometeam, homeStats, pass, tick);
+		//announcer(5, tick, awayteam);
+		tick = time_tick(tick);//ê³µê²© ì „ê°œ ë„ì¤‘ì— ê²½ê¸°ë¥¼ ëë‚´ì§„ ì•Šìœ¼ë¯€ë¡œ, ì°¬ìŠ¤ê°€ ëë‚˜ê³  ë‚˜ì„œ ì‹œê°„ ê°±ì‹ 
+		pass = pass_play(awayStats, pass);
+		awayteam.score = tikitaka(awayteam, awayStats, pass, tick);
+		//announcer(5, tick, hometeam);
+		tick = time_tick(tick);
+	}
+	_sleep(5000);
+	int addtime = addTime(tick);
+	announcer(10, addtime, hometeam);
+	_sleep(3000);
+	announcer(12, 45 + addtime, hometeam);
+	_sleep(5000);
+	pass = 0;//íŒ¨ìŠ¤ ì—°ê²° íšŸìˆ˜ ì´ˆê¸°í™”
+	tick = 45;//ì „ë°˜ì „ ì¢…ë£Œ, ì‹œê°„ ì´ˆê¸°í™”
+	announcer(13, 45, hometeam);
+	tick = time_tick(45);
+	while (tick < 75) { //90ë¶„ - ëœë¤ ì‹œê°„ 15ë¶„
+		pass = pass_play(awayStats, pass);
+		awayteam.score = tikitaka(awayteam, awayStats, pass, tick);
+		//announcer(5, tick, hometeam);
+		tick = time_tick(tick);
+		pass = pass_play(homeStats, pass);
+		hometeam.score = tikitaka(hometeam, homeStats, pass, tick);
+		//announcer(5, tick, awayteam);
+		tick = time_tick(tick);
+	}
+	_sleep(5000);
+	addtime = addTime(tick);
+	announcer(19, addtime, hometeam);
+	_sleep(3000);
+	announcer(20, 90+addtime, hometeam);
+	cout << "ìµœì¢…ìŠ¤ì½”ì–´ "<< hometeam.team << " " << hometeam.score << " - " << awayteam.score << " " << awayteam.team << endl;
+	_sleep(5000);
+	return ret;
+}
+
 match::match(team home, team away) {
-	//»ı¼º°ú µ¿½Ã¿¡ ÆÀ ÁöÁ¤
+	//ìƒì„±ê³¼ ë™ì‹œì— íŒ€ ì§€ì •
 	this->setHome(home);
 	this->setAway(away);
 }
