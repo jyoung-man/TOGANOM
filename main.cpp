@@ -3,7 +3,7 @@
 #include<string>
 #include<vector>
 #include "premier_league.h"
-#define TEAMNUMBER 10
+#define TEAMNUMBER 20
 using namespace std;
 vector<team> presetting() {
 	vector<team> data;
@@ -15,7 +15,7 @@ vector<team> presetting() {
 		string message;
 		getline(now, message);
 		temp.setName(message);
-		for (int j = 0; j < 8; j++) {
+		for (int j = 0; j < 7; j++) {
 			string tempvalue;
 			getline(now, tempvalue);
 			temp.addstat(tempvalue);
@@ -26,7 +26,7 @@ vector<team> presetting() {
 }
 void showteams() {
 	cout << "--------------------------------" << endl;
-	cout << "ÆÀ ¸ñ·ÏÀº ´ÙÀ½°ú °°½À´Ï´Ù" << endl;
+	cout << "íŒ€ ëª©ë¡ì€ ë‹¤ìŒê³¼ ê°™ìŠµë‹ˆë‹¤" << endl;
 	cout << "--------------------------------" << endl;
 	vector<string> teams;
 	ifstream ifs("teams.txt");
@@ -39,54 +39,54 @@ void showteams() {
 }
 int main()
 {
-	vector<match> predict; //match °á°ú ÀúÀå
+	vector<match> predict; //match ê²°ê³¼ ì €ìž¥
 	vector<team> data = presetting();
-	cout << "¿¹ÃøÇÏ°íÀÚ ÇÏ´Â °ÔÀÓ ¼ö¸¦ ÀÔ·ÂÇÏ¼¼¿ä : ";
-	int c;
+	cout << "ì˜ˆì¸¡í•˜ê³ ìž í•˜ëŠ” ê²Œìž„ ìˆ˜ë¥¼ ìž…ë ¥í•˜ì„¸ìš” : ";
+	int c = 1;
 	cin >> c;
 	for (int i = 0; i < c; i++) {
-		int home = 0;
-		int away = 0;
+		int home = -1;
+		int away = -1;
 		string homename;
 		string awayname;
 		showteams();
-		while (home == 0) {
-			cout << "È¨ ÆÀÀ» ÀÔ·ÂÇØÁÖ¼¼¿ä : ";
+		while (home == -1) {
+			cout << "í™ˆ íŒ€ì„ ìž…ë ¥í•´ì£¼ì„¸ìš” : ";
 			cin >> home;
 			if (home >= 1 && home <= TEAMNUMBER) {
 				home--;
-				cout << data[home].getName() <<" À» ¼±ÅÃÇÏ¼Ì½À´Ï´Ù"<< endl;
+				cout << data[home].getName() <<" ì„ ì„ íƒí•˜ì…¨ìŠµë‹ˆë‹¤"<< endl;
 			}
 			else {
-				cout << "Àß¸ø ÀÔ·ÂÇÏ¼Ì½À´Ï´Ù" << endl;
-				home = 0;
+				cout << "ìž˜ëª» ìž…ë ¥í•˜ì…¨ìŠµë‹ˆë‹¤" << endl;
+				home = -1;
 			}
 		}
 		homename = data[home].getName();
-		while (away == 0) {
-			cout << "¿øÁ¤ ÆÀÀ» ÀÔ·ÂÇØÁÖ¼¼¿ä : ";
+		while (away == -1) {
+			cout << "ì›ì • íŒ€ì„ ìž…ë ¥í•´ì£¼ì„¸ìš” : ";
 			cin >> away;
 			if (away >= 1 && away <= TEAMNUMBER) {
 				away--;
-				cout << data[away].getName() << " À» ¼±ÅÃÇÏ¼Ì½À´Ï´Ù" << endl;
+				cout << data[away].getName() << " ì„ ì„ íƒí•˜ì…¨ìŠµë‹ˆë‹¤" << endl;
 			}
 			else {
-				cout << "Àß¸ø ÀÔ·ÂÇÏ¼Ì½À´Ï´Ù" << endl;
-				away = 0;
+				cout << "ìž˜ëª» ìž…ë ¥í•˜ì…¨ìŠµë‹ˆë‹¤" << endl;
+				away = -1;
 			}
 		}
 		awayname = data[away].getName();
-		cout << homename << " °ú(¿Í) " << awayname << " ÀÇ °æ±â¸¦ ÁøÇàÇÕ´Ï´Ù" << endl;
+		cout << homename << " ì™€ " << awayname << " ì˜ ê²½ê¸°ë¥¼ ì§„í–‰í•©ë‹ˆë‹¤" << endl;
 		match temp(data[home], data[away]);
+		temp.algorithm2();
 		temp.setResults(temp.algorithm1());
 		predict.push_back(temp);
-		//°á°ú ÀúÀå
-		cout << "°á°ú°¡ ÀúÀåµÇ¾ú½À´Ï´Ù!" << endl;
 	}
-	//°á°ú¸¦ ¸ð¾Æ¼­ È®ÀÎÇÏ±â
+	//ê²°ê³¼ë¥¼ ëª¨ì•„ì„œ í™•ì¸í•˜ê¸°
 	for (int i = 0; i < c; i++) {
 		predict[i].showResults();
 	}
+
 	//match1.team_select(1, 2);
 
 }
